@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, KeyboardSensor } from '@dnd-kit/core';
 import { SortableContext, useSortable, verticalListSortingStrategy, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { ChevronDown, ChevronRight, BookOpen, GripVertical, Trash2, Plus, FolderOpen } from 'lucide-react';
+import { ChevronDown, ChevronRight, BookOpen, GripVertical, Trash2, Plus, FolderOpen, Pencil } from 'lucide-react';
 import { QuestionItem } from './QuestionItem';
 import { useQuestionStore } from '../../store/useQuestionStore';
 import { AddQuestionModal } from '../ui/AddQuestionModal';
+import { Modal } from '../ui/Modal';
 
 const SortableQuestionItem = ({ question, topicId, subTopicId }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: question._id });
@@ -35,6 +36,10 @@ const SortableSubTopicSection = ({ subTopic, topicId }) => {
   const addQuestion = useQuestionStore(state => state.addQuestion);
   const deleteSubTopic = useQuestionStore(state => state.deleteSubTopic);
   const reorderQuestions = useQuestionStore(state => state.reorderQuestions);
+  const editSubTopic = useQuestionStore(state => state.editSubTopic);
+
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editedTitle, setEditedTitle] = useState(subTopic.title);
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: subTopic.id });
 
@@ -63,6 +68,13 @@ const SortableSubTopicSection = ({ subTopic, topicId }) => {
 
   const handleAddQuestion = (questionData) => {
     addQuestion(topicId, subTopic.id, questionData);
+  };
+
+  const handleEditSubTopic = (e) => {
+    e.preventDefault();
+    if (!editedTitle.trim()) return;
+    editSubTopic(topicId, subTopic.id, editedTitle);
+    setIsEditModalOpen(false);
   };
 
   const solvedCount = subTopic.questions.filter(q => q.isSolved).length;
@@ -100,6 +112,9 @@ const SortableSubTopicSection = ({ subTopic, topicId }) => {
           <button onClick={() => setIsAddQuestionOpen(true)} className="btn-icon" title="Add Question">
             <Plus className="w-4 h-4" />
           </button>
+          <button onClick={() => setIsEditModalOpen(true)} className="btn-icon" title="Edit Sub-topic">
+            <Pencil className="w-4 h-4" />
+          </button>
           <button onClick={() => deleteSubTopic(topicId, subTopic.id)} className="btn-danger" title="Delete">
             <Trash2 className="w-4 h-4" />
           </button>
@@ -128,6 +143,25 @@ const SortableSubTopicSection = ({ subTopic, topicId }) => {
         onClose={() => setIsAddQuestionOpen(false)}
         onSubmit={handleAddQuestion}
       />
+
+      <Modal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} title="Edit Sub-topic">
+        <form onSubmit={handleEditSubTopic} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-400 mb-2">Sub-topic Title</label>
+            <input
+              autoFocus
+              type="text"
+              className="input-field"
+              value={editedTitle}
+              onChange={(e) => setEditedTitle(e.target.value)}
+              required
+            />
+          </div>
+          <button type="submit" className="btn-primary w-full mt-4">
+            Save Changes
+          </button>
+        </form>
+      </Modal>
     </div>
   );
 };
@@ -140,6 +174,10 @@ export const TopicCard = ({ topic }) => {
   const addQuestion = useQuestionStore(state => state.addQuestion);
   const reorderSubTopics = useQuestionStore(state => state.reorderSubTopics);
   const reorderQuestions = useQuestionStore(state => state.reorderQuestions);
+  const editTopic = useQuestionStore(state => state.editTopic);
+
+  const [isEditTopicModalOpen, setIsEditTopicModalOpen] = useState(false);
+  const [topicEditData, setTopicEditData] = useState({ title: topic.title, description: topic.description || '' });
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: topic.id });
 
@@ -179,6 +217,13 @@ export const TopicCard = ({ topic }) => {
 
   const handleAddQuestion = (questionData) => {
     addQuestion(topic.id, null, questionData);
+  };
+
+  const handleEditTopic = (e) => {
+    e.preventDefault();
+    if (!topicEditData.title.trim()) return;
+    editTopic(topic.id, topicEditData.title, topicEditData.description);
+    setIsEditTopicModalOpen(false);
   };
 
   const totalQuestions = (topic.questions?.length || 0) +
@@ -237,6 +282,9 @@ export const TopicCard = ({ topic }) => {
           <button onClick={() => setIsAddQuestionOpen(true)} className="btn-icon" title="Add Question">
             <Plus className="w-4 h-4" />
           </button>
+          <button onClick={() => setIsEditTopicModalOpen(true)} className="btn-icon" title="Edit Topic">
+            <Pencil className="w-4 h-4" />
+          </button>
           <button onClick={() => deleteTopic(topic.id)} className="btn-danger" title="Delete Topic">
             <Trash2 className="w-4 h-4" />
           </button>
@@ -282,6 +330,33 @@ export const TopicCard = ({ topic }) => {
         onClose={() => setIsAddQuestionOpen(false)}
         onSubmit={handleAddQuestion}
       />
+
+      <Modal isOpen={isEditTopicModalOpen} onClose={() => setIsEditTopicModalOpen(false)} title="Edit Topic">
+        <form onSubmit={handleEditTopic} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-400 mb-2">Topic Title</label>
+            <input
+              autoFocus
+              type="text"
+              className="input-field"
+              value={topicEditData.title}
+              onChange={(e) => setTopicEditData(prev => ({ ...prev, title: e.target.value }))}
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-400 mb-2">Description</label>
+            <textarea
+              className="input-field min-h-[100px] resize-none"
+              value={topicEditData.description}
+              onChange={(e) => setTopicEditData(prev => ({ ...prev, description: e.target.value }))}
+            />
+          </div>
+          <button type="submit" className="btn-primary w-full mt-4">
+            Save Changes
+          </button>
+        </form>
+      </Modal>
     </div>
   );
 };

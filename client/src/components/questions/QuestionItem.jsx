@@ -1,10 +1,13 @@
-import React from 'react';
-import { ExternalLink, Check, Trash2, Youtube, Building2 } from 'lucide-react';
+import { useState } from 'react';
+import { ExternalLink, Check, Trash2, Youtube, Building2, Pencil } from 'lucide-react';
 import { useQuestionStore } from '../../store/useQuestionStore';
+import { AddQuestionModal } from '../ui/AddQuestionModal';
 
 export const QuestionItem = ({ question, topicId, subTopicId }) => {
     const toggleSolved = useQuestionStore(state => state.toggleSolved);
     const deleteQuestion = useQuestionStore(state => state.deleteQuestion);
+    const editQuestion = useQuestionStore(state => state.editQuestion);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
     const difficultyClass = {
         'Basic': 'badge-easy bg-brand-accent/15 text-brand-accent border-brand-accent/20',
@@ -14,6 +17,19 @@ export const QuestionItem = ({ question, topicId, subTopicId }) => {
     }[question.questionId?.difficulty] || 'badge-medium';
 
     const companies = question.questionId?.companyTags || [];
+
+    const handleEditSubmit = (updatedData) => {
+        editQuestion(topicId, subTopicId, question._id, {
+            title: updatedData.title,
+            questionId: {
+                difficulty: updatedData.difficulty,
+                problemUrl: updatedData.problemUrl,
+                platform: updatedData.platform,
+                resource: updatedData.resource,
+                companyTags: updatedData.companyTags
+            }
+        });
+    };
 
     return (
         <div className="flex flex-col py-2 px-3 rounded-lg hover:bg-white/[0.03] transition-all group/item border border-transparent hover:border-white/5">
@@ -65,13 +81,22 @@ export const QuestionItem = ({ question, topicId, subTopicId }) => {
                         </a>
                     )}
 
-                    <button
-                        onClick={() => deleteQuestion(topicId, subTopicId, question._id)}
-                        className="p-1.5 rounded-lg text-slate-500 hover:bg-danger/10 hover:text-danger transition-colors opacity-0 group-hover/item:opacity-100"
-                        title="Delete"
-                    >
-                        <Trash2 className="w-4 h-4" />
-                    </button>
+                    <div className="flex gap-1 opacity-0 group-hover/item:opacity-100 transition-opacity">
+                        <button
+                            onClick={() => setIsEditModalOpen(true)}
+                            className="p-1.5 rounded-lg text-slate-500 hover:bg-white/10 hover:text-white transition-colors"
+                            title="Edit"
+                        >
+                            <Pencil className="w-4 h-4" />
+                        </button>
+                        <button
+                            onClick={() => deleteQuestion(topicId, subTopicId, question._id)}
+                            className="p-1.5 rounded-lg text-slate-500 hover:bg-danger/10 hover:text-danger transition-colors"
+                            title="Delete"
+                        >
+                            <Trash2 className="w-4 h-4" />
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -88,6 +113,14 @@ export const QuestionItem = ({ question, topicId, subTopicId }) => {
                     )}
                 </div>
             )}
+
+            <AddQuestionModal
+                isOpen={isEditModalOpen}
+                onClose={() => setIsEditModalOpen(false)}
+                mode="edit"
+                initialData={question}
+                onSubmit={handleEditSubmit}
+            />
         </div>
     );
 };

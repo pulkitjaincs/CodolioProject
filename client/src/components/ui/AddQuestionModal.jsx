@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Modal } from './Modal';
 import { LinkIcon, Youtube, Building2, Globe } from 'lucide-react';
 
-export const AddQuestionModal = ({ isOpen, onClose, onSubmit }) => {
+export const AddQuestionModal = ({ isOpen, onClose, onSubmit, initialData = null, mode = 'add' }) => {
     const [formData, setFormData] = useState({
         title: '',
         problemUrl: '',
@@ -12,11 +12,36 @@ export const AddQuestionModal = ({ isOpen, onClose, onSubmit }) => {
         companyTags: ''
     });
 
+    useEffect(() => {
+        if (isOpen) {
+            if (initialData && mode === 'edit') {
+                setFormData({
+                    title: initialData.title || '',
+                    problemUrl: initialData.questionId?.problemUrl || '',
+                    difficulty: initialData.questionId?.difficulty || 'Medium',
+                    platform: initialData.questionId?.platform || 'leetcode',
+                    resource: initialData.questionId?.resource || '',
+                    companyTags: Array.isArray(initialData.questionId?.companyTags)
+                        ? initialData.questionId.companyTags.join(', ')
+                        : ''
+                });
+            } else {
+                setFormData({
+                    title: '',
+                    problemUrl: '',
+                    difficulty: 'Medium',
+                    platform: 'leetcode',
+                    resource: '',
+                    companyTags: ''
+                });
+            }
+        }
+    }, [isOpen, initialData, mode]);
+
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!formData.title.trim()) return;
 
-        // Process company tags string to array
         const tagsArray = formData.companyTags
             .split(',')
             .map(tag => tag.trim())
@@ -27,14 +52,6 @@ export const AddQuestionModal = ({ isOpen, onClose, onSubmit }) => {
             companyTags: tagsArray
         });
 
-        setFormData({
-            title: '',
-            problemUrl: '',
-            difficulty: 'Medium',
-            platform: 'leetcode',
-            resource: '',
-            companyTags: ''
-        });
         onClose();
     };
 
@@ -44,7 +61,7 @@ export const AddQuestionModal = ({ isOpen, onClose, onSubmit }) => {
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title="Add New Question">
+        <Modal isOpen={isOpen} onClose={onClose} title={mode === 'edit' ? "Edit Question" : "Add New Question"}>
             <form onSubmit={handleSubmit} className="space-y-4 max-h-[70vh] overflow-y-auto pr-2 custom-scrollbar">
                 <div>
                     <label className="block text-sm font-medium text-slate-400 mb-2">
@@ -80,6 +97,8 @@ export const AddQuestionModal = ({ isOpen, onClose, onSubmit }) => {
                                 <option value="codestudio">CodeStudio</option>
                                 <option value="hackerrank">HackerRank</option>
                                 <option value="codechef">CodeChef</option>
+                                <option value="interviewbit">InterviewBit</option>
+                                <option value="ninjas">Ninjas</option>
                                 <option value="other">Other</option>
                             </select>
                         </div>
@@ -153,7 +172,7 @@ export const AddQuestionModal = ({ isOpen, onClose, onSubmit }) => {
                 </div>
 
                 <button type="submit" className="btn-primary w-full mt-6">
-                    Add Question
+                    {mode === 'edit' ? "Save Changes" : "Add Question"}
                 </button>
             </form>
         </Modal>

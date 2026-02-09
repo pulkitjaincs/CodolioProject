@@ -10,6 +10,11 @@ const router = Router();
 
 router.use('/topics', topicRoutes);
 router.use('/topics/:topicId/subtopics', subTopicRoutes);
+
+
+router.use('/subtopics', subTopicRoutes);
+router.use('/questions', questionRoutes);
+
 router.use('/topics/:topicId/subtopics/:subTopicId/questions', questionRoutes);
 router.use('/topics/:topicId/questions', questionRoutes);
 

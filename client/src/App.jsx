@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import {
   DndContext,
   closestCenter,
@@ -53,7 +53,7 @@ function App() {
     const fetchData = async () => {
       if (topics.length > 0) return;
       try {
-        const response = await fetch('http://localhost:3001/api/topics');
+        const response = await fetch('/api/topics');
         const result = await response.json();
         if (result.success && result.data) {
           setTopics(result.data);

@@ -10,107 +10,263 @@ export const useQuestionStore = create(
             setTopics: (topics) => set({ topics }),
 
 
-            addTopic: (title, description = '') => set((state) => ({
-                topics: [...state.topics, { id: crypto.randomUUID(), title, description, subTopics: [], questions: [] }]
-            })),
-            deleteTopic: (topicId) => set((state) => ({
-                topics: state.topics.filter(t => t.id !== topicId)
-            })),
-            editTopic: (topicId, newTitle, newDescription) => set((state) => ({
-                topics: state.topics.map(t => t.id === topicId ? { ...t, title: newTitle, description: newDescription } : t)
-            })),
-
-            addSubTopic: (topicId, title) => set((state) => ({
-                topics: state.topics.map(t => t.id === topicId ? {
-                    ...t,
-                    subTopics: [...t.subTopics, { id: crypto.randomUUID(), title, questions: [] }]
-                } : t)
-            })),
-
-            deleteSubTopic: (topicId, subTopicId) => set((state) => ({
-                topics: state.topics.map(t => t.id === topicId ? {
-                    ...t,
-                    subTopics: t.subTopics.filter(st => st.id !== subTopicId)
-                } : t)
-            })),
-
-            addQuestion: (topicId, subTopicId, questionData) => set((state) => {
-                const newQuestion = {
-                    _id: crypto.randomUUID(),
-                    title: questionData.title || 'New Question',
-                    isSolved: false,
-                    questionId: {
-                        difficulty: questionData.difficulty || 'Medium',
-                        problemUrl: questionData.problemUrl || '#',
-                        platform: questionData.platform || 'leetcode',
-                        resource: questionData.resource || '#',
-                        companyTags: questionData.companyTags || []
+            addTopic: async (title, description = '') => {
+                try {
+                    const response = await fetch('/api/topics', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ title, description })
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                        set((state) => ({
+                            topics: [...state.topics, result.data]
+                        }));
                     }
-                };
-
-                const newTopics = state.topics.map(topic => {
-                    if (topic.id !== topicId) return topic;
-
-                    if (!subTopicId) {
-                        return { ...topic, questions: [...topic.questions, newQuestion] };
+                } catch (error) {
+                    console.error('Failed to add topic:', error);
+                }
+            },
+            deleteTopic: async (topicId) => {
+                try {
+                    const response = await fetch(`/api/topics/${topicId}`, { method: 'DELETE' });
+                    const result = await response.json();
+                    if (result.success) {
+                        set((state) => ({
+                            topics: state.topics.filter(t => t.id !== topicId)
+                        }));
                     }
-
-                    return {
-                        ...topic,
-                        subTopics: topic.subTopics.map(st =>
-                            st.id === subTopicId
-                                ? { ...st, questions: [...st.questions, newQuestion] }
-                                : st
-                        )
-                    };
-                });
-                return { topics: newTopics };
-            }),
-
-            deleteQuestion: (topicId, subTopicId, questionId) => set((state) => {
-                const newTopics = state.topics.map(topic => {
-                    if (topic.id !== topicId) return topic;
-
-                    if (!subTopicId) {
-                        return { ...topic, questions: topic.questions.filter(q => q._id !== questionId) };
+                } catch (error) {
+                    console.error('Failed to delete topic:', error);
+                }
+            },
+            editTopic: async (topicId, newTitle, newDescription) => {
+                try {
+                    const response = await fetch(`/api/topics/${topicId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ title: newTitle, description: newDescription })
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                        set((state) => ({
+                            topics: state.topics.map(t => t.id === topicId ? { ...t, title: newTitle, description: newDescription } : t)
+                        }));
                     }
+                } catch (error) {
+                    console.error('Failed to edit topic:', error);
+                }
+            },
 
-                    return {
-                        ...topic,
-                        subTopics: topic.subTopics.map(st =>
-                            st.id === subTopicId
-                                ? { ...st, questions: st.questions.filter(q => q._id !== questionId) }
-                                : st
-                        )
-                    };
-                });
-                return { topics: newTopics };
-            }),
-
-            toggleSolved: (topicId, subTopicId, questionId) => set((state) => {
-                const newTopics = state.topics.map(topic => {
-                    if (topic.id !== topicId) return topic;
-
-                    if (!subTopicId) {
-                        return {
-                            ...topic,
-                            questions: topic.questions.map(q =>
-                                q._id === questionId ? { ...q, isSolved: !q.isSolved } : q
-                            )
-                        };
+            addSubTopic: async (topicId, title) => {
+                try {
+                    const response = await fetch(`/api/topics/${topicId}/subtopics`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ title })
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                        set((state) => ({
+                            topics: state.topics.map(t => t.id === topicId ? {
+                                ...t,
+                                subTopics: [...(t.subTopics || []), result.data]
+                            } : t)
+                        }));
                     }
+                } catch (error) {
+                    console.error('Failed to add sub-topic:', error);
+                }
+            },
 
-                    return {
-                        ...topic,
-                        subTopics: topic.subTopics.map(st =>
-                            st.id === subTopicId
-                                ? { ...st, questions: st.questions.map(q => q._id === questionId ? { ...q, isSolved: !q.isSolved } : q) }
-                                : st
-                        )
-                    };
-                });
-                return { topics: newTopics };
-            }),
+            deleteSubTopic: async (topicId, subTopicId) => {
+                try {
+                    const response = await fetch(`/api/topics/${topicId}/subtopics/${subTopicId}`, { method: 'DELETE' });
+                    const result = await response.json();
+                    if (result.success) {
+                        set((state) => ({
+                            topics: state.topics.map(t => t.id === topicId ? {
+                                ...t,
+                                subTopics: t.subTopics.filter(st => st.id !== subTopicId)
+                            } : t)
+                        }));
+                    }
+                } catch (error) {
+                    console.error('Failed to delete sub-topic:', error);
+                }
+            },
+            editSubTopic: async (topicId, subTopicId, newTitle) => {
+                try {
+                    const response = await fetch(`/api/subtopics/${subTopicId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ title: newTitle })
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                        set((state) => ({
+                            topics: state.topics.map(t => t.id === topicId ? {
+                                ...t,
+                                subTopics: t.subTopics.map(st => st.id === subTopicId ? { ...st, title: newTitle } : st)
+                            } : t)
+                        }));
+                    }
+                } catch (error) {
+                    console.error('Failed to edit sub-topic:', error);
+                }
+            },
+
+            addQuestion: async (topicId, subTopicId, questionData) => {
+                try {
+                    const url = subTopicId
+                        ? `/api/topics/${topicId}/subtopics/${subTopicId}/questions`
+                        : `/api/topics/${topicId}/questions`;
+
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(questionData)
+                    });
+                    const result = await response.json();
+
+                    if (result.success) {
+                        set((state) => {
+                            const newTopics = state.topics.map(topic => {
+                                if (topic.id !== topicId) return topic;
+
+                                if (!subTopicId) {
+                                    return { ...topic, questions: [...(topic.questions || []), result.data] };
+                                }
+
+                                return {
+                                    ...topic,
+                                    subTopics: topic.subTopics.map(st =>
+                                        st.id === subTopicId
+                                            ? { ...st, questions: [...(st.questions || []), result.data] }
+                                            : st
+                                    )
+                                };
+                            });
+                            return { topics: newTopics };
+                        });
+                    }
+                } catch (error) {
+                    console.error('Failed to add question:', error);
+                }
+            },
+
+            deleteQuestion: async (topicId, subTopicId, questionId) => {
+                try {
+                    const url = subTopicId
+                        ? `/api/topics/${topicId}/subtopics/${subTopicId}/questions/${questionId}`
+                        : `/api/topics/${topicId}/questions/${questionId}`;
+
+                    const response = await fetch(url, { method: 'DELETE' });
+                    const result = await response.json();
+
+                    if (result.success) {
+                        set((state) => {
+                            const newTopics = state.topics.map(topic => {
+                                if (topic.id !== topicId) return topic;
+
+                                if (!subTopicId) {
+                                    return { ...topic, questions: topic.questions.filter(q => q._id !== questionId) };
+                                }
+
+                                return {
+                                    ...topic,
+                                    subTopics: topic.subTopics.map(st =>
+                                        st.id === subTopicId
+                                            ? { ...st, questions: st.questions.filter(q => q._id !== questionId) }
+                                            : st
+                                    )
+                                };
+                            });
+                            return { topics: newTopics };
+                        });
+                    }
+                } catch (error) {
+                    console.error('Failed to delete question:', error);
+                }
+            },
+
+            editQuestion: async (topicId, subTopicId, questionId, updatedData) => {
+                try {
+                    const response = await fetch(`/api/questions/${questionId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(updatedData)
+                    });
+                    const result = await response.json();
+
+                    if (result.success) {
+                        set((state) => {
+                            const newTopics = state.topics.map(topic => {
+                                if (topic.id !== topicId) return topic;
+
+                                if (!subTopicId) {
+                                    return {
+                                        ...topic,
+                                        questions: topic.questions.map(q =>
+                                            q._id === questionId ? { ...q, ...result.data } : q
+                                        )
+                                    };
+                                }
+
+                                return {
+                                    ...topic,
+                                    subTopics: topic.subTopics.map(st =>
+                                        st.id === subTopicId
+                                            ? { ...st, questions: st.questions.map(q => q._id === questionId ? { ...q, ...result.data } : q) }
+                                            : st
+                                    )
+                                };
+                            });
+                            return { topics: newTopics };
+                        });
+                    }
+                } catch (error) {
+                    console.error('Failed to edit question:', error);
+                }
+            },
+
+            toggleSolved: async (topicId, subTopicId, questionId) => {
+                try {
+                    const response = await fetch(`/api/questions/${questionId}/toggle`, {
+                        method: 'PATCH'
+                    });
+                    const result = await response.json();
+
+                    if (result.success) {
+                        set((state) => {
+                            const newTopics = state.topics.map(topic => {
+                                if (topic.id !== topicId) return topic;
+
+                                if (!subTopicId) {
+                                    return {
+                                        ...topic,
+                                        questions: topic.questions.map(q =>
+                                            q._id === questionId ? { ...q, isSolved: result.data.isSolved } : q
+                                        )
+                                    };
+                                }
+
+                                return {
+                                    ...topic,
+                                    subTopics: topic.subTopics.map(st =>
+                                        st.id === subTopicId
+                                            ? { ...st, questions: st.questions.map(q => q._id === questionId ? { ...q, isSolved: result.data.isSolved } : q) }
+                                            : st
+                                    )
+                                };
+                            });
+                            return { topics: newTopics };
+                        });
+                    }
+                } catch (error) {
+                    console.error('Failed to toggle solved:', error);
+                }
+            },
 
             reorderTopics: (startIndex, endIndex) => set((state) => {
                 const newTopics = [...state.topics];
