@@ -34,8 +34,16 @@ const QuestionSchema = new mongoose.Schema({
     companyTags: {
         type: [String],
         default: []
+    },
+    isStarred: {
+        type: Boolean,
+        default: false
+    },
+    notes: {
+        type: String,
+        default: ''
     }
-}, { _id: true });
+}, { _id: true, timestamps: true });
 
 QuestionSchema.index({ order: 1 });
 const Question = mongoose.model("Question", QuestionSchema);

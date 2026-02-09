@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Modal } from './Modal';
-import { LinkIcon, Youtube, Building2, Globe } from 'lucide-react';
+import { LinkIcon, Youtube, Building2, Globe, Star, Check } from 'lucide-react';
 
 export const AddQuestionModal = ({ isOpen, onClose, onSubmit, initialData = null, mode = 'add' }) => {
     const [formData, setFormData] = useState({
@@ -9,7 +9,9 @@ export const AddQuestionModal = ({ isOpen, onClose, onSubmit, initialData = null
         difficulty: 'Medium',
         platform: 'leetcode',
         resource: '',
-        companyTags: ''
+        companyTags: '',
+        isStarred: false,
+        notes: ''
     });
 
     useEffect(() => {
@@ -23,7 +25,9 @@ export const AddQuestionModal = ({ isOpen, onClose, onSubmit, initialData = null
                     resource: initialData.questionId?.resource || '',
                     companyTags: Array.isArray(initialData.questionId?.companyTags)
                         ? initialData.questionId.companyTags.join(', ')
-                        : ''
+                        : '',
+                    isStarred: initialData.isStarred || false,
+                    notes: initialData.notes || ''
                 });
             } else {
                 setFormData({
@@ -32,7 +36,9 @@ export const AddQuestionModal = ({ isOpen, onClose, onSubmit, initialData = null
                     difficulty: 'Medium',
                     platform: 'leetcode',
                     resource: '',
-                    companyTags: ''
+                    companyTags: '',
+                    isStarred: false,
+                    notes: ''
                 });
             }
         }
@@ -168,6 +174,33 @@ export const AddQuestionModal = ({ isOpen, onClose, onSubmit, initialData = null
                             value={formData.companyTags}
                             onChange={handleChange}
                         />
+                    </div>
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-slate-400 mb-2">
+                        Private Notes
+                    </label>
+                    <textarea
+                        name="notes"
+                        placeholder="Add strategies, edge cases, or reminders..."
+                        className="input-field min-h-[100px] resize-none"
+                        value={formData.notes}
+                        onChange={handleChange}
+                    />
+                </div>
+
+                <div className="flex items-center gap-3 p-4 rounded-xl bg-white/[0.03] border border-white/10 hover:border-brand-primary/30 transition-all cursor-pointer"
+                    onClick={() => setFormData(p => ({ ...p, isStarred: !p.isStarred }))}>
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all ${formData.isStarred ? 'bg-yellow-400/20 text-yellow-400' : 'bg-white/5 text-slate-500'}`}>
+                        <Star className={`w-5 h-5 ${formData.isStarred ? 'fill-current' : ''}`} />
+                    </div>
+                    <div className="flex-1">
+                        <h4 className="text-sm font-semibold text-white">Star this question</h4>
+                        <p className="text-xs text-slate-500">Highlight this problem for quick review later.</p>
+                    </div>
+                    <div className={`w-5 h-5 rounded border-2 transition-all flex items-center justify-center ${formData.isStarred ? 'bg-yellow-400 border-yellow-400' : 'border-slate-700'}`}>
+                        {formData.isStarred && <Check className="w-3.5 h-3.5 text-black font-bold" />}
                     </div>
                 </div>
 

@@ -22,14 +22,30 @@ export const getAllTopics = async (req, res) => {
                     _id: q._id.toString(),
                     title: q.title,
                     isSolved: q.isSolved,
-                    questionId: { difficulty: q.difficulty, problemUrl: q.problemUrl }
+                    isStarred: q.isStarred || false,
+                    notes: q.notes || '',
+                    questionId: {
+                        difficulty: q.difficulty,
+                        problemUrl: q.problemUrl,
+                        platform: q.platform,
+                        resource: q.resource,
+                        companyTags: q.companyTags
+                    }
                 }))
             })),
             questions: (t.questions || []).map(q => ({
                 _id: q._id.toString(),
                 title: q.title,
                 isSolved: q.isSolved,
-                questionId: { difficulty: q.difficulty, problemUrl: q.problemUrl }
+                isStarred: q.isStarred || false,
+                notes: q.notes || '',
+                questionId: {
+                    difficulty: q.difficulty,
+                    problemUrl: q.problemUrl,
+                    platform: q.platform,
+                    resource: q.resource,
+                    companyTags: q.companyTags
+                }
             }))
         }));
         res.json({ success: true, data: formattedTopics });

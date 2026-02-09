@@ -41,7 +41,9 @@ export const createQuestion = async (req, res) => {
                     problemUrl: newQuestion.problemUrl,
                     platform: newQuestion.platform,
                     resource: newQuestion.resource,
-                    companyTags: newQuestion.companyTags
+                    companyTags: newQuestion.companyTags,
+                    isStarred: newQuestion.isStarred,
+                    notes: newQuestion.notes
                 }
             }
         });
@@ -74,7 +76,9 @@ export const updateQuestion = async (req, res) => {
                 problemUrl: question.problemUrl,
                 platform: question.platform,
                 resource: question.resource,
-                companyTags: question.companyTags
+                companyTags: question.companyTags,
+                isStarred: question.isStarred,
+                notes: question.notes
             }
         });
     } catch (error) {
@@ -148,6 +152,45 @@ export const reorderQuestions = async (req, res) => {
         }
 
         res.json({ success: true, message: 'Questions reordered' });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+};
+
+export const toggleStarred = async (req, res) => {
+    try {
+        const { questionId } = req.params;
+        const question = await Question.findById(questionId);
+        if (!question) return res.status(404).json({ success: false, error: 'Question not found' });
+
+        question.isStarred = !question.isStarred;
+        await question.save();
+
+        res.json({
+            success: true, data: {
+                _id: question._id.toString(),
+                isStarred: question.isStarred
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+};
+
+export const updateNotes = async (req, res) => {
+    try {
+        const { questionId } = req.params;
+        const { notes } = req.body;
+
+        const question = await Question.findByIdAndUpdate(questionId, { notes }, { new: true });
+        if (!question) return res.status(404).json({ success: false, error: 'Question not found' });
+
+        res.json({
+            success: true, data: {
+                _id: question._id.toString(),
+                notes: question.notes
+            }
+        });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }

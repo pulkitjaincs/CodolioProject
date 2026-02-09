@@ -268,6 +268,84 @@ export const useQuestionStore = create(
                 }
             },
 
+            toggleStarred: async (topicId, subTopicId, questionId) => {
+                try {
+                    const response = await fetch(`/api/questions/${questionId}/star`, {
+                        method: 'PATCH'
+                    });
+                    const result = await response.json();
+
+                    if (result.success) {
+                        set((state) => {
+                            const newTopics = state.topics.map(topic => {
+                                if (topic.id !== topicId) return topic;
+
+                                if (!subTopicId) {
+                                    return {
+                                        ...topic,
+                                        questions: topic.questions.map(q =>
+                                            q._id === questionId ? { ...q, isStarred: result.data.isStarred } : q
+                                        )
+                                    };
+                                }
+
+                                return {
+                                    ...topic,
+                                    subTopics: topic.subTopics.map(st =>
+                                        st.id === subTopicId
+                                            ? { ...st, questions: st.questions.map(q => q._id === questionId ? { ...q, isStarred: result.data.isStarred } : q) }
+                                            : st
+                                    )
+                                };
+                            });
+                            return { topics: newTopics };
+                        });
+                    }
+                } catch (error) {
+                    console.error('Failed to toggle star:', error);
+                }
+            },
+
+            updateNotes: async (topicId, subTopicId, questionId, notes) => {
+                try {
+                    const response = await fetch(`/api/questions/${questionId}/notes`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ notes })
+                    });
+                    const result = await response.json();
+
+                    if (result.success) {
+                        set((state) => {
+                            const newTopics = state.topics.map(topic => {
+                                if (topic.id !== topicId) return topic;
+
+                                if (!subTopicId) {
+                                    return {
+                                        ...topic,
+                                        questions: topic.questions.map(q =>
+                                            q._id === questionId ? { ...q, notes: result.data.notes } : q
+                                        )
+                                    };
+                                }
+
+                                return {
+                                    ...topic,
+                                    subTopics: topic.subTopics.map(st =>
+                                        st.id === subTopicId
+                                            ? { ...st, questions: st.questions.map(q => q._id === questionId ? { ...q, notes: result.data.notes } : q) }
+                                            : st
+                                    )
+                                };
+                            });
+                            return { topics: newTopics };
+                        });
+                    }
+                } catch (error) {
+                    console.error('Failed to update notes:', error);
+                }
+            },
+
             reorderTopics: (startIndex, endIndex) => set((state) => {
                 const newTopics = [...state.topics];
                 const [removed] = newTopics.splice(startIndex, 1);
@@ -309,7 +387,46 @@ export const useQuestionStore = create(
                 })
             })),
 
-            resetStore: () => set({ topics: [] }),
+            resetProgress: async () => {
+                try {
+                    const response = await fetch('/api/system/reset-progress', { method: 'PATCH' });
+                    const result = await response.json();
+                    if (result.success) {
+                        set((state) => ({
+                            topics: state.topics.map(t => ({
+                                ...t,
+                                questions: (t.questions || []).map(q => ({ ...q, isSolved: false })),
+                                subTopics: (t.subTopics || []).map(st => ({
+                                    ...st,
+                                    questions: (st.questions || []).map(q => ({ ...q, isSolved: false }))
+                                }))
+                            }))
+                        }));
+                        return true;
+                    }
+                } catch (error) {
+                    console.error('Failed to reset progress:', error);
+                }
+                return false;
+            },
+
+            fullReset: async () => {
+                try {
+                    const response = await fetch('/api/system/full-reset', { method: 'POST' });
+                    const result = await response.json();
+                    if (result.success) {
+                        const fetchResponse = await fetch('/api/topics');
+                        const fetchResult = await fetchResponse.json();
+                        if (fetchResult.success) {
+                            set({ topics: fetchResult.data });
+                        }
+                        return true;
+                    }
+                } catch (error) {
+                    console.error('Failed to perform full reset:', error);
+                }
+                return false;
+            },
         }),
         { name: 'codolio-questions-storage' }
     )

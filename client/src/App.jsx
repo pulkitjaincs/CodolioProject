@@ -18,8 +18,9 @@ import { Modal } from './components/ui/Modal';
 import { Sparkles, RotateCcw, Plus, BookOpen, CheckCircle2, Target, Zap } from 'lucide-react';
 
 function App() {
-  const { topics, setTopics, reorderTopics, resetStore } = useQuestionStore();
+  const { topics, setTopics, reorderTopics, resetProgress, fullReset } = useQuestionStore();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false);
   const [newTopicTitle, setNewTopicTitle] = useState('');
   const [newTopicDescription, setNewTopicDescription] = useState('');
   const addTopic = useQuestionStore(state => state.addTopic);
@@ -96,11 +97,7 @@ function App() {
             </div>
             <div className="flex gap-3">
               <button
-                onClick={() => {
-                  if (window.confirm("Reset all progress? This cannot be undone.")) {
-                    resetStore();
-                  }
-                }}
+                onClick={() => setIsResetModalOpen(true)}
                 className="btn-secondary flex items-center gap-2"
               >
                 <RotateCcw className="w-4 h-4" />
@@ -206,6 +203,43 @@ function App() {
               Create Topic
             </button>
           </form>
+        </Modal>
+
+        <Modal isOpen={isResetModalOpen} onClose={() => setIsResetModalOpen(false)} title="Reset Sheet">
+          <div className="space-y-6">
+            <div className="p-4 rounded-xl bg-brand-primary/10 border border-brand-primary/20">
+              <h4 className="font-semibold text-white mb-1">Option 1: Unmark All Progress</h4>
+              <p className="text-sm text-slate-400 mb-4">
+                Keep all your topics and questions, but uncheck all "Solved" boxes.
+              </p>
+              <button
+                onClick={async () => {
+                  if (await resetProgress()) setIsResetModalOpen(false);
+                }}
+                className="btn-secondary w-full"
+              >
+                Reset Progress Only
+              </button>
+            </div>
+
+            <div className="p-4 rounded-xl bg-danger/10 border border-danger/20">
+              <h4 className="font-semibold text-white mb-1">Option 2: Restore Original Sheet</h4>
+              <p className="text-sm text-slate-400 mb-4">
+                <span className="text-danger font-medium text-xs uppercase tracking-wider block mb-1">⚠️ Warning</span>
+                Delete everything and restore the original Striver A2Z DSA Sheet from sheet.json.
+              </p>
+              <button
+                onClick={async () => {
+                  if (window.confirm("This will delete all custom topics and questions. Are you sure?")) {
+                    if (await fullReset()) setIsResetModalOpen(false);
+                  }
+                }}
+                className="btn-primary-danger w-full"
+              >
+                Restore Factory Settings
+              </button>
+            </div>
+          </div>
         </Modal>
       </div>
     </div>

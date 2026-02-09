@@ -7,11 +7,13 @@ CodolioQuestions is a high-fidelity, full-stack DSA (Data Structures and Algorit
 - **Hierarchical Organization**: Problems are organized into Topics, which contain Sub-topics and individual Questions.
 - **Interactive Progress**: Real-time progress bars at the Topic and Sub-topic levels.
 - **Drag-and-Drop**: Easily reorder Topics, Sub-topics, and Questions using a smooth drag-and-drop interface.
-- **Rich Metadata**: Track problem difficulty, platform (LeetCode, GFG, etc.), YouTube tutorial links, and Company tags.
+- **Enhanced Question Metadata**: Track problem difficulty, platform (LeetCode, GFG, etc.), YouTube/Article resources, **isStarred** status, and **Private Personal Notes**.
+- **Two-Tier Reset System**: 
+    - **Reset Progress Only**: Unmarks all solved questions while preserving custom questions and topics.
+    - **Restore Factory Settings**: Wipes the database and re-seeds it with the original Striver A2Z DSA data.
 - **Edit Functionality**: Full support for editing Topic titles/descriptions, Sub-topic titles, and Question details through pre-filled modals.
-- **Glassmorphic UI**: A premium, modern dark-themed interface with smooth animations and hover effects.
-- **Full-Stack Persistence**: Data is stored in a MongoDB Atlas database with frontend state management via Zustand.
-- **API Proxy**: Configured Vite proxy for clean, relative URL calls (`/api/...`).
+- **Glassmorphic UI**: A premium, modern dark-themed interface with smooth animations, hover effects, and inline note-taking.
+- **Full-Stack Persistence**: Data is stored in a MongoDB Atlas database with frontend state management via Zustand and Vite API Proxying.
 
 ## 🛠️ Tech Stack
 

@@ -6,11 +6,12 @@ import { Topic } from '../models/Topic.model.js';
 import SubTopic from '../models/SubTopic.model.js';
 import Question from '../models/Question.model.js';
 
+import { resetProgress, fullReset } from '../controllers/systemController.js';
+
 const router = Router();
 
 router.use('/topics', topicRoutes);
 router.use('/topics/:topicId/subtopics', subTopicRoutes);
-
 
 router.use('/subtopics', subTopicRoutes);
 router.use('/questions', questionRoutes);
@@ -18,20 +19,10 @@ router.use('/questions', questionRoutes);
 router.use('/topics/:topicId/subtopics/:subTopicId/questions', questionRoutes);
 router.use('/topics/:topicId/questions', questionRoutes);
 
-router.get('/health', (req, res) => {
-    res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
-
-router.delete('/reset', async (req, res) => {
-    try {
-        await Question.deleteMany({});
-        await SubTopic.deleteMany({});
-        await Topic.deleteMany({});
-        res.json({ success: true, message: 'Database cleared' });
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
-});
+router.use('/system', Router()
+    .patch('/reset-progress', resetProgress)
+    .post('/full-reset', fullReset)
+);
 
 router.get('/stats', async (req, res) => {
     try {
