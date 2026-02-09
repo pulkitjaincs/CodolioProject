@@ -1,0 +1,241 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-primary: oklch(0.65 0.22 270);
+  --color-brand-secondary: oklch(0.55 0.20 320);
+  --color-brand-accent: oklch(0.70 0.18 180);
+  --color-bg-dark: oklch(0.12 0.015 270);
+  --color-bg-elevated: oklch(0.15 0.015 270);
+  --color-card-dark: oklch(0.18 0.02 270);
+  --color-border-dark: oklch(0.25 0.02 270);
+  --color-success: oklch(0.65 0.2 145);
+  --color-warning: oklch(0.75 0.18 85);
+  --color-danger: oklch(0.6 0.22 25);
+}
+
+@layer base {
+  * {
+    @apply border-border-dark;
+  }
+
+  body {
+    @apply bg-bg-dark text-slate-100 antialiased;
+    font-family: 'Inter', 'SF Pro Display', system-ui, sans-serif;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(120, 80, 200, 0.15), transparent),
+      radial-gradient(ellipse 60% 40% at 100% 100%, rgba(80, 120, 200, 0.1), transparent);
+    background-attachment: fixed;
+  }
+
+  ::selection {
+    @apply bg-brand-primary/40 text-white;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-slate-700/60 rounded-full;
+    transition: background 0.2s;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-slate-600;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] rounded-2xl;
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.02) inset,
+      0 4px 24px -4px rgba(0, 0, 0, 0.4),
+      0 0 40px -20px rgba(120, 80, 200, 0.3);
+  }
+
+  .glass-subtle {
+    @apply bg-white/[0.02] backdrop-blur-md border border-white/[0.05] rounded-xl;
+    box-shadow: 0 2px 12px -2px rgba(0, 0, 0, 0.3);
+  }
+
+  .glass-hover {
+    @apply transition-all duration-300 ease-out;
+  }
+
+  .glass-hover:hover {
+    @apply border-brand-primary/30 bg-white/[0.05];
+    box-shadow:
+      0 0 0 1px rgba(120, 80, 200, 0.1) inset,
+      0 8px 32px -8px rgba(0, 0, 0, 0.5),
+      0 0 60px -30px rgba(120, 80, 200, 0.4);
+    transform: translateY(-2px);
+  }
+
+  .btn-primary {
+    @apply relative overflow-hidden px-5 py-2.5 rounded-xl font-semibold text-sm;
+    @apply bg-gradient-to-r from-brand-primary to-brand-secondary;
+    @apply text-white shadow-lg shadow-brand-primary/25;
+    @apply transition-all duration-300 ease-out;
+  }
+
+  .btn-primary:hover {
+    @apply shadow-xl shadow-brand-primary/40;
+    transform: translateY(-1px);
+    filter: brightness(1.1);
+  }
+
+  .btn-primary:active {
+    transform: translateY(0);
+  }
+
+  .btn-secondary {
+    @apply px-5 py-2.5 rounded-xl font-semibold text-sm;
+    @apply bg-white/[0.05] border border-white/10 text-slate-300;
+    @apply hover:bg-white/10 hover:border-white/20 hover:text-white;
+    @apply transition-all duration-200;
+  }
+
+  .btn-ghost {
+    @apply px-3 py-1.5 rounded-lg text-sm text-slate-400;
+    @apply hover:bg-white/5 hover:text-slate-200;
+    @apply transition-all duration-200;
+  }
+
+  .btn-icon {
+    @apply p-2 rounded-lg text-slate-500;
+    @apply hover:bg-white/5 hover:text-slate-300;
+    @apply transition-all duration-200;
+  }
+
+  .btn-danger {
+    @apply p-2 rounded-lg text-slate-500;
+    @apply transition-all duration-200;
+    @apply hover:bg-danger/10 hover:text-danger;
+  }
+
+  .input-field {
+    @apply w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3;
+    @apply text-white placeholder:text-slate-500;
+    @apply focus:outline-none focus:border-brand-primary/50 focus:ring-2 focus:ring-brand-primary/20;
+    @apply transition-all duration-200;
+  }
+
+  .progress-bar {
+    @apply h-1.5 rounded-full overflow-hidden;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.1));
+  }
+
+  .progress-bar-fill {
+    @apply h-full rounded-full transition-all duration-500 ease-out;
+    background: linear-gradient(90deg, var(--color-brand-primary), var(--color-brand-secondary));
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, var(--color-brand-primary), var(--color-brand-secondary), var(--color-brand-accent));
+  }
+
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .badge-easy {
+    @apply bg-success/15 text-success border border-success/20;
+  }
+
+  .badge-medium {
+    @apply bg-warning/15 text-warning border border-warning/20;
+  }
+
+  .badge-hard {
+    @apply bg-danger/15 text-danger border border-danger/20;
+  }
+
+  .stat-card {
+    @apply p-4 flex flex-col items-center justify-center text-center;
+    @apply bg-white/[0.02] backdrop-blur-md border border-white/[0.05] rounded-xl;
+    box-shadow: 0 2px 12px -2px rgba(0, 0, 0, 0.3);
+  }
+
+  .stat-value {
+    @apply text-2xl font-bold text-white;
+  }
+
+  .stat-label {
+    @apply text-xs text-slate-500 uppercase tracking-wider mt-1;
+  }
+
+  .drag-handle {
+    @apply p-2 cursor-grab active:cursor-grabbing;
+    @apply text-slate-600 hover:text-slate-400;
+    @apply transition-colors duration-200;
+  }
+
+  .checkbox-solved {
+    @apply w-5 h-5 rounded-lg border-2 border-slate-600;
+    @apply flex items-center justify-center cursor-pointer;
+    @apply transition-all duration-200;
+  }
+
+  .checkbox-solved:hover {
+    @apply border-brand-primary/50;
+  }
+
+  .checkbox-solved.checked {
+    @apply bg-gradient-to-br from-success to-success/80 border-success;
+  }
+}
+
+@layer utilities {
+  .animate-glow {
+    animation: glow 2s ease-in-out infinite alternate;
+  }
+
+  @keyframes glow {
+    from {
+      box-shadow: 0 0 20px -10px var(--color-brand-primary);
+    }
+
+    to {
+      box-shadow: 0 0 30px -5px var(--color-brand-primary);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.2s ease-out;
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+}

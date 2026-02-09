@@ -1,0 +1,215 @@
+import React, { useEffect, useState, useMemo } from 'react';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { useQuestionStore } from './store/useQuestionStore';
+import { TopicCard } from './components/questions/TopicCard';
+import { Modal } from './components/ui/Modal';
+import { Sparkles, RotateCcw, Plus, BookOpen, CheckCircle2, Target, Zap } from 'lucide-react';
+
+function App() {
+  const { topics, setTopics, reorderTopics, resetStore } = useQuestionStore();
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [newTopicTitle, setNewTopicTitle] = useState('');
+  const [newTopicDescription, setNewTopicDescription] = useState('');
+  const addTopic = useQuestionStore(state => state.addTopic);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  const stats = useMemo(() => {
+    let total = 0, solved = 0;
+    topics.forEach(topic => {
+      topic.questions?.forEach(q => { total++; if (q.isSolved) solved++; });
+      topic.subTopics?.forEach(st => {
+        st.questions?.forEach(q => { total++; if (q.isSolved) solved++; });
+      });
+    });
+    return { total, solved, progress: total > 0 ? Math.round((solved / total) * 100) : 0 };
+  }, [topics]);
+
+  const handleAddTopic = (e) => {
+    e.preventDefault();
+    if (!newTopicTitle.trim()) return;
+    addTopic(newTopicTitle, newTopicDescription);
+    setNewTopicTitle('');
+    setNewTopicDescription('');
+    setIsAddModalOpen(false);
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (topics.length > 0) return;
+      try {
+        const response = await fetch('http://localhost:3001/api/topics');
+        const result = await response.json();
+        if (result.success && result.data) {
+          setTopics(result.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch from API:", error);
+      }
+    };
+    fetchData();
+  }, [setTopics, topics.length]);
+
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+    if (active.id !== over?.id) {
+      const oldIndex = topics.findIndex((t) => t.id === active.id);
+      const newIndex = topics.findIndex((t) => t.id === over.id);
+      if (oldIndex !== -1 && newIndex !== -1) {
+        reorderTopics(oldIndex, newIndex);
+      }
+    }
+  };
+
+  return (
+    <div className="min-h-screen p-4 md:p-8 lg:p-12">
+      <div className="max-w-6xl mx-auto">
+        <header className="mb-10">
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8">
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2 rounded-xl bg-gradient-to-br from-brand-primary/20 to-brand-secondary/20 border border-brand-primary/20">
+                  <Sparkles className="w-6 h-6 text-brand-primary" />
+                </div>
+                <h1 className="text-3xl md:text-4xl font-bold text-gradient">
+                  CodolioQuestions
+                </h1>
+              </div>
+              <p className="text-slate-400 text-sm md:text-base">
+                Track your DSA journey with the Striver SDE Sheet
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  if (window.confirm("Reset all progress? This cannot be undone.")) {
+                    resetStore();
+                  }
+                }}
+                className="btn-secondary flex items-center gap-2"
+              >
+                <RotateCcw className="w-4 h-4" />
+                <span className="hidden sm:inline">Reset</span>
+              </button>
+              <button onClick={() => setIsAddModalOpen(true)} className="btn-primary flex items-center gap-2">
+                <Plus className="w-4 h-4" />
+                Add Topic
+              </button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="glass-subtle p-4 flex items-center gap-4">
+              <div className="p-3 rounded-xl bg-brand-primary/10">
+                <BookOpen className="w-5 h-5 text-brand-primary" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-white">{topics.length}</p>
+                <p className="text-xs text-slate-500 uppercase tracking-wider">Topics</p>
+              </div>
+            </div>
+            <div className="glass-subtle p-4 flex items-center gap-4">
+              <div className="p-3 rounded-xl bg-brand-accent/10">
+                <Target className="w-5 h-5 text-brand-accent" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-white">{stats.total}</p>
+                <p className="text-xs text-slate-500 uppercase tracking-wider">Questions</p>
+              </div>
+            </div>
+            <div className="glass-subtle p-4 flex items-center gap-4">
+              <div className="p-3 rounded-xl bg-success/10">
+                <CheckCircle2 className="w-5 h-5 text-success" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-white">{stats.solved}</p>
+                <p className="text-xs text-slate-500 uppercase tracking-wider">Solved</p>
+              </div>
+            </div>
+            <div className="glass-subtle p-4 flex items-center gap-4">
+              <div className="p-3 rounded-xl bg-warning/10">
+                <Zap className="w-5 h-5 text-warning" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-white">{stats.progress}%</p>
+                <p className="text-xs text-slate-500 uppercase tracking-wider">Progress</p>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={topics.map(t => t.id)} strategy={verticalListSortingStrategy}>
+            <div className="space-y-4">
+              {topics.map(topic => (
+                <TopicCard key={topic.id} topic={topic} />
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
+
+        {topics.length === 0 && (
+          <div className="glass text-center py-16 px-8 animate-fade-in">
+            <div className="p-4 rounded-2xl bg-brand-primary/10 w-fit mx-auto mb-4">
+              <BookOpen className="w-10 h-10 text-brand-primary" />
+            </div>
+            <h3 className="text-xl font-semibold text-white mb-2">No Topics Yet</h3>
+            <p className="text-slate-400 mb-6 max-w-md mx-auto">
+              Start building your question sheet by adding your first topic.
+            </p>
+            <button onClick={() => setIsAddModalOpen(true)} className="btn-primary">
+              <Plus className="w-4 h-4 inline mr-2" />
+              Create Your First Topic
+            </button>
+          </div>
+        )}
+
+        <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} title="Add New Topic">
+          <form onSubmit={handleAddTopic} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-400 mb-2">Topic Title *</label>
+              <input
+                autoFocus
+                type="text"
+                placeholder="e.g. Dynamic Programming"
+                className="input-field"
+                value={newTopicTitle}
+                onChange={(e) => setNewTopicTitle(e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-400 mb-2">Description</label>
+              <textarea
+                placeholder="Briefly describe what this topic covers..."
+                className="input-field min-h-[100px] resize-none"
+                value={newTopicDescription}
+                onChange={(e) => setNewTopicDescription(e.target.value)}
+              />
+            </div>
+            <button type="submit" className="btn-primary w-full mt-4">
+              Create Topic
+            </button>
+          </form>
+        </Modal>
+      </div>
+    </div>
+  );
+}
+
+export default App;
