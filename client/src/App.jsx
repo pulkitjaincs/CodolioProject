@@ -16,7 +16,9 @@ import { useQuestionStore } from './store/useQuestionStore';
 import { TopicCard } from './components/questions/TopicCard';
 import { Modal } from './components/ui/Modal';
 import { ThemeToggle } from './components/ui/ThemeToggle';
-import { Sparkles, RotateCcw, Plus, BookOpen, CheckCircle2, Target, Zap, RefreshCcw } from 'lucide-react';
+import { CommandPalette } from './components/ui/CommandPalette';
+import { Sparkles, RotateCcw, Plus, BookOpen, CheckCircle2, Target, Zap, RefreshCcw, Search } from 'lucide-react';
+
 
 function App() {
   const { topics, setTopics, reorderTopics, resetProgress, fullReset } = useQuestionStore();
@@ -24,6 +26,7 @@ function App() {
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
   const [newTopicTitle, setNewTopicTitle] = useState('');
   const [newTopicDescription, setNewTopicDescription] = useState('');
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const addTopic = useQuestionStore(state => state.addTopic);
 
   const sensors = useSensors(
@@ -68,6 +71,16 @@ function App() {
 
   useEffect(() => {
     fetchData();
+
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsCommandPaletteOpen(prev => !prev);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, [setTopics]);
 
   const handleDragEnd = (event) => {
@@ -88,7 +101,10 @@ function App() {
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 rounded-xl bg-gradient-to-br from-brand-primary/20 to-brand-secondary/20 border border-brand-primary/20">
+                <div
+                  className="p-2 bg-gradient-to-br from-brand-primary/20 to-brand-secondary/20 border border-brand-primary/20"
+                  style={{ borderRadius: 'var(--radius-md)' }}
+                >
                   <Sparkles className="w-6 h-6 text-brand-primary" />
                 </div>
                 <h1 className="text-3xl md:text-4xl font-bold text-gradient">
@@ -101,6 +117,16 @@ function App() {
             </div>
             <div className="flex items-center gap-3">
               <ThemeToggle />
+              <div className="h-6 w-px bg-border-dark hidden sm:block" />
+              <button
+                onClick={() => setIsCommandPaletteOpen(true)}
+                className="p-2 glass-subtle text-text-muted hover:text-brand-primary transition-all hover:scale-110 active:scale-95 group relative"
+                style={{ borderRadius: 'var(--radius-md)' }}
+                title="Search (Ctrl + K)"
+              >
+                <Search className="w-5 h-5" />
+                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-brand-primary text-[8px] text-white font-bold opacity-0 group-hover:opacity-100 transition-opacity">K</span>
+              </button>
               <div className="h-6 w-px bg-border-dark hidden sm:block" />
               <button
                 onClick={fetchData}
@@ -126,7 +152,10 @@ function App() {
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="glass-subtle p-4 flex items-center gap-4">
-              <div className="p-3 rounded-xl bg-brand-primary/10">
+              <div
+                className="p-3 bg-brand-primary/10"
+                style={{ borderRadius: 'var(--radius-md)' }}
+              >
                 <BookOpen className="w-5 h-5 text-brand-primary" />
               </div>
               <div>
@@ -176,7 +205,10 @@ function App() {
 
         {topics.length === 0 && (
           <div className="glass text-center py-16 px-8 animate-fade-in">
-            <div className="p-4 rounded-2xl bg-brand-primary/10 w-fit mx-auto mb-4">
+            <div
+              className="p-4 bg-brand-primary/10 w-fit mx-auto mb-4"
+              style={{ borderRadius: 'var(--radius-lg)' }}
+            >
               <BookOpen className="w-10 h-10 text-brand-primary" />
             </div>
             <h3 className="text-xl font-semibold text-text-main mb-2">No Topics Yet</h3>
@@ -257,6 +289,11 @@ function App() {
           </div>
         </Modal>
       </div>
+
+      <CommandPalette
+        isOpen={isCommandPaletteOpen}
+        onClose={() => setIsCommandPaletteOpen(false)}
+      />
     </div>
   );
 }

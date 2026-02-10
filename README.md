@@ -5,7 +5,11 @@ CodolioQuestions is a high-fidelity, full-stack DSA (Data Structures and Algorit
 ## 🚀 Key Features
 
 - **Dynamic Theme Architecture**: A beautiful, premium interface with **Light**, **Dark**, and **System** mode support.
+- **Redesigned Command Palette (Ctrl + K)**: A minimalist, high-contrast search interface to jump to any Topic, Sub-topic, or Question instantly. Optimized for surgical efficiency with keyboard-native navigation.
+- **Perfectly Synced Design System**: Harmonized corner radii (16px/12px/8px) and theme-aware styling across every component—from Topic Cards to individual Badges—using global CSS variables.
 - **Buttery Smooth Transitions**: Native **View Transitions API** implementation for a hardware-accelerated, perfectly smooth cross-fade effect when switching themes.
+
+
 - **Optimistic UI Updates**: Instant feedback for solving questions, starring, and adding notes. The UI updates immediately while background server sync handles persistence and automatic rollbacks on failure.
 - **Performance Optimized**: 
     - **Shared Modal Architecture**: Reduces DOM weight by >50% by consolidating hundreds of redundant modals.

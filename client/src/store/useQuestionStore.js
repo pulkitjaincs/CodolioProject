@@ -6,8 +6,10 @@ export const useQuestionStore = create(
         (set, get) => ({
             topics: [],
             loading: false,
+            navigationTarget: null,
 
             setTopics: (topics) => set({ topics }),
+            setNavigationTarget: (id) => set({ navigationTarget: id }),
 
 
             addTopic: async (title, description = '') => {

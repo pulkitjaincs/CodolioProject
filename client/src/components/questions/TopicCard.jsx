@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, KeyboardSensor } from '@dnd-kit/core';
 import { SortableContext, useSortable, verticalListSortingStrategy, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -39,8 +40,19 @@ const SortableSubTopicSection = ({ subTopic, topicId, onAddQuestion, onEditSubTo
   const [isOpen, setIsOpen] = useState(false);
   const deleteSubTopic = useQuestionStore(state => state.deleteSubTopic);
   const reorderQuestions = useQuestionStore(state => state.reorderQuestions);
+  const navigationTarget = useQuestionStore(state => state.navigationTarget);
+
+  useEffect(() => {
+    if (navigationTarget) {
+      const isTargetChild = subTopic.questions.some(q => q._id === navigationTarget);
+      if (isTargetChild || subTopic.id === navigationTarget) {
+        setIsOpen(true);
+      }
+    }
+  }, [navigationTarget, subTopic.id, subTopic.questions]);
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: subTopic.id });
+
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -69,7 +81,7 @@ const SortableSubTopicSection = ({ subTopic, topicId, onAddQuestion, onEditSubTo
   const progress = (solvedCount / subTopic.questions.length) * 100 || 0;
 
   return (
-    <div ref={setNodeRef} style={style} className="glass-subtle overflow-hidden group/subtopic">
+    <div ref={setNodeRef} style={style} id={subTopic.id} className="glass-subtle overflow-hidden group/subtopic">
       <div className="flex items-center">
         <div {...attributes} {...listeners} className="drag-handle opacity-0 group-hover/subtopic:opacity-100">
           <GripVertical className="w-4 h-4" />
@@ -80,7 +92,10 @@ const SortableSubTopicSection = ({ subTopic, topicId, onAddQuestion, onEditSubTo
           className="flex-1 flex items-center justify-between p-3 pl-1 text-left hover:bg-white/5 transition-colors"
         >
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-brand-secondary/10">
+            <div
+              className="p-2 bg-brand-secondary/10"
+              style={{ borderRadius: 'var(--radius-md)' }}
+            >
               <FolderOpen className="w-4 h-4 text-brand-secondary" />
             </div>
             <div>
@@ -145,8 +160,20 @@ export const TopicCard = ({ topic }) => {
   const editTopic = useQuestionStore(state => state.editTopic);
   const reorderSubTopics = useQuestionStore(state => state.reorderSubTopics);
   const reorderQuestions = useQuestionStore(state => state.reorderQuestions);
+  const navigationTarget = useQuestionStore(state => state.navigationTarget);
+
+  useEffect(() => {
+    if (navigationTarget) {
+      const isTargetChild = topic.questions?.some(q => q._id === navigationTarget) ||
+        topic.subTopics?.some(st => st.id === navigationTarget || st.questions?.some(q => q._id === navigationTarget));
+      if (isTargetChild || topic.id === navigationTarget) {
+        setIsOpen(true);
+      }
+    }
+  }, [navigationTarget, topic.id, topic.questions, topic.subTopics]);
 
   // Shared Modals State
+
   const [questionModal, setQuestionModal] = useState({ isOpen: false, subTopicId: null, mode: 'add', initialData: null });
   const [subTopicModal, setSubTopicModal] = useState({ isOpen: false, subTopic: null });
   const [topicModal, setTopicModal] = useState({ isOpen: false, title: topic.title, description: topic.description || '' });
@@ -215,7 +242,7 @@ export const TopicCard = ({ topic }) => {
   const progress = totalQuestions > 0 ? (solvedQuestions / totalQuestions) * 100 : 0;
 
   return (
-    <div ref={setNodeRef} style={style} className="glass glass-hover group/topic animate-fade-in">
+    <div ref={setNodeRef} style={style} id={topic.id} className="glass glass-hover group/topic animate-fade-in">
       <div className="flex items-center">
         <div {...attributes} {...listeners} className="drag-handle opacity-50 group-hover/topic:opacity-100 ml-2">
           <GripVertical className="w-5 h-5" />
@@ -223,7 +250,10 @@ export const TopicCard = ({ topic }) => {
 
         <button onClick={() => setIsOpen(!isOpen)} className="flex-1 flex items-center justify-between p-4 pl-2 text-left">
           <div className="flex items-center gap-4">
-            <div className="p-3 rounded-xl bg-gradient-to-br from-brand-primary/20 to-brand-secondary/20 border border-brand-primary/10">
+            <div
+              className="p-3 bg-gradient-to-br from-brand-primary/20 to-brand-secondary/20 border border-brand-primary/10"
+              style={{ borderRadius: 'var(--radius-md)' }}
+            >
               <BookOpen className="w-5 h-5 text-brand-primary" />
             </div>
             <div>
@@ -241,7 +271,10 @@ export const TopicCard = ({ topic }) => {
               </div>
               <span className="text-sm font-medium text-text-muted w-12">{Math.round(progress)}%</span>
             </div>
-            <div className={`p-2 rounded-lg transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}>
+            <div
+              className={`p-2 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+              style={{ borderRadius: 'var(--radius-md)' }}
+            >
               <ChevronDown className="w-5 h-5 text-text-muted" />
             </div>
           </div>

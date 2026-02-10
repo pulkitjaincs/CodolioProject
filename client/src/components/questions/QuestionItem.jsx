@@ -27,7 +27,7 @@ export const QuestionItem = ({ question, topicId, subTopicId, onEdit }) => {
     };
 
     return (
-        <div className="glass-subtle p-3 hover:border-brand-primary/30 transition-all duration-300 group/item">
+        <div id={question._id} className="glass-subtle p-3 hover:border-brand-primary/30 transition-all duration-300 group/item">
             <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
                     <button
@@ -49,7 +49,10 @@ export const QuestionItem = ({ question, topicId, subTopicId, onEdit }) => {
                             <span className={`text-sm font-medium transition-all ${question.isSolved ? 'text-text-muted line-through opacity-60' : 'text-text-main'}`}>
                                 {question.title}
                             </span>
-                            <span className="text-[10px] uppercase tracking-wider text-text-muted font-bold px-1.5 py-0.5 rounded bg-white/5 border border-white/5">
+                            <span
+                                className="text-[10px] uppercase tracking-wider text-text-muted font-bold px-1.5 py-0.5 border border-white/5"
+                                style={{ borderRadius: 'var(--radius-sm)', backgroundColor: 'rgba(255,255,255,0.05)' }}
+                            >
                                 {question.questionId?.platform}
                             </span>
                         </div>
@@ -118,7 +121,11 @@ export const QuestionItem = ({ question, topicId, subTopicId, onEdit }) => {
                 <div className="flex items-center gap-1.5 mt-2 ml-8 flex-wrap">
                     <Building2 className="w-3 h-3 text-text-muted" />
                     {companies.slice(0, 5).map((company, idx) => (
-                        <span key={idx} className="text-[10px] text-text-muted px-1.5 py-0.5 rounded-md bg-white/[0.02] border border-white/5">
+                        <span
+                            key={idx}
+                            className="text-[10px] text-text-muted px-1.5 py-0.5 bg-white/[0.02] border border-white/5"
+                            style={{ borderRadius: 'var(--radius-sm)' }}
+                        >
                             {company}
                         </span>
                     ))}
