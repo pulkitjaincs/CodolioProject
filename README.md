@@ -4,16 +4,24 @@ CodolioQuestions is a high-fidelity, full-stack DSA (Data Structures and Algorit
 
 ## 🚀 Key Features
 
+- **Dynamic Theme Architecture**: A beautiful, premium interface with **Light**, **Dark**, and **System** mode support.
+- **Buttery Smooth Transitions**: Native **View Transitions API** implementation for a hardware-accelerated, perfectly smooth cross-fade effect when switching themes.
+- **Optimistic UI Updates**: Instant feedback for solving questions, starring, and adding notes. The UI updates immediately while background server sync handles persistence and automatic rollbacks on failure.
+- **Performance Optimized**: 
+    - **Shared Modal Architecture**: Reduces DOM weight by >50% by consolidating hundreds of redundant modals.
+    - **MongoDB Lean Queries**: Fast data retrieval using `.lean()` to bypass Mongoose document overhead.
+    - **Hardware-Accelerated CSS**: Refined transitions to reduce CPU/GPU load.
 - **Hierarchical Organization**: Problems are organized into Topics, which contain Sub-topics and individual Questions.
 - **Interactive Progress**: Real-time progress bars at the Topic and Sub-topic levels.
 - **Drag-and-Drop**: Easily reorder Topics, Sub-topics, and Questions using a smooth drag-and-drop interface.
-- **Enhanced Question Metadata**: Track problem difficulty, platform (LeetCode, GFG, etc.), YouTube/Article resources, **isStarred** status, and **Private Personal Notes**.
+- **Enhanced Question Metadata**: Track problem difficulty, platform, YouTube/Article resources, and **Personal Notes**.
+- **Data Sync & Refresh**: High-reliability syncing with a manual **Sync** button and automatic fetch-on-mount to ensure you always see the "source of truth".
 - **Two-Tier Reset System**: 
     - **Reset Progress Only**: Unmarks all solved questions while preserving custom questions and topics.
     - **Restore Factory Settings**: Wipes the database and re-seeds it with the original Striver A2Z DSA data.
-- **Edit Functionality**: Full support for editing Topic titles/descriptions, Sub-topic titles, and Question details through pre-filled modals.
-- **Glassmorphic UI**: A premium, modern dark-themed interface with smooth animations, hover effects, and inline note-taking.
+- **Edit Functionality**: Full support for editing Topic titles/descriptions, Sub-topic titles, and Question details through pre-filled shared modals.
 - **Full-Stack Persistence**: Data is stored in a MongoDB Atlas database with frontend state management via Zustand and Vite API Proxying.
+
 
 ## 🛠️ Tech Stack
 
@@ -22,7 +30,9 @@ CodolioQuestions is a high-fidelity, full-stack DSA (Data Structures and Algorit
 - **Tailwind CSS v4** (Modern utility-first styling)
 - **Zustand** (Global state management with persistence)
 - **@dnd-kit** (For robust drag-and-drop interactions)
+- **View Transitions API** (Native, hardware-accelerated cross-fades)
 - **Lucide React** (Beautiful, consistent iconography)
+
 
 ### Backend
 - **Node.js & Express**

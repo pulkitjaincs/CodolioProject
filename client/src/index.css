@@ -1,30 +1,66 @@
 @import "tailwindcss";
 
+:root {
+  color-scheme: light dark;
+  --brand-primary: oklch(0.65 0.22 270);
+  --brand-secondary: oklch(0.55 0.20 320);
+  --brand-accent: oklch(0.70 0.18 180);
+
+  --bg-main: oklch(1 0 0);
+  --bg-elevated: oklch(0.97 0.01 270);
+  --card-bg: oklch(1 0 0);
+  --border-main: oklch(0.92 0.01 270);
+  --text-main: oklch(0.2 0.02 270);
+  --text-muted: oklch(0.45 0.02 270);
+
+  --success: oklch(0.65 0.2 145);
+  --warning: oklch(0.75 0.18 85);
+  --danger: oklch(0.6 0.22 25);
+
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(0, 0, 0, 0.08);
+}
+
+.dark {
+  --bg-main: oklch(0 0 0);
+  --bg-elevated: oklch(0.08 0.01 270);
+  --card-bg: oklch(0.05 0.01 270);
+  --border-main: oklch(0.15 0.02 270);
+  --text-main: oklch(0.95 0.01 270);
+  --text-muted: oklch(0.65 0.02 270);
+
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+}
+
 @theme {
-  --color-brand-primary: oklch(0.65 0.22 270);
-  --color-brand-secondary: oklch(0.55 0.20 320);
-  --color-brand-accent: oklch(0.70 0.18 180);
-  --color-bg-dark: oklch(0.12 0.015 270);
-  --color-bg-elevated: oklch(0.15 0.015 270);
-  --color-card-dark: oklch(0.18 0.02 270);
-  --color-border-dark: oklch(0.25 0.02 270);
-  --color-success: oklch(0.65 0.2 145);
-  --color-warning: oklch(0.75 0.18 85);
-  --color-danger: oklch(0.6 0.22 25);
+  --color-brand-primary: var(--brand-primary);
+  --color-brand-secondary: var(--brand-secondary);
+  --color-brand-accent: var(--brand-accent);
+  --color-bg-dark: var(--bg-main);
+  --color-bg-elevated: var(--bg-elevated);
+  --color-card-dark: var(--card-bg);
+  --color-border-dark: var(--border-main);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-text-main: var(--text-main);
+  --color-text-muted: var(--text-muted);
 }
 
 @layer base {
   * {
-    @apply border-border-dark;
+    border-color: var(--border-main);
   }
 
+
   body {
-    @apply bg-bg-dark text-slate-100 antialiased;
+    @apply bg-bg-dark text-text-main antialiased;
     font-family: 'Inter', 'SF Pro Display', system-ui, sans-serif;
-    background-image:
-      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(120, 80, 200, 0.15), transparent),
-      radial-gradient(ellipse 60% 40% at 100% 100%, rgba(80, 120, 200, 0.1), transparent);
-    background-attachment: fixed;
+  }
+
+  .dark body {
+    background-image: none;
   }
 
   ::selection {
@@ -52,7 +88,9 @@
 
 @layer components {
   .glass {
-    @apply bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] rounded-2xl;
+    @apply backdrop-blur-xl border rounded-2xl;
+    background-color: var(--glass-bg);
+    border-color: var(--glass-border);
     box-shadow:
       0 0 0 1px rgba(255, 255, 255, 0.02) inset,
       0 4px 24px -4px rgba(0, 0, 0, 0.4),
@@ -60,7 +98,9 @@
   }
 
   .glass-subtle {
-    @apply bg-white/[0.02] backdrop-blur-md border border-white/[0.05] rounded-xl;
+    @apply backdrop-blur-md border rounded-xl;
+    background-color: var(--glass-bg);
+    border-color: var(--glass-border);
     box-shadow: 0 2px 12px -2px rgba(0, 0, 0, 0.3);
   }
 
@@ -116,32 +156,36 @@
 
   .btn-secondary {
     @apply px-5 py-2.5 rounded-xl font-semibold text-sm;
-    @apply bg-white/[0.05] border border-white/10 text-slate-300;
-    @apply hover:bg-white/10 hover:border-white/20 hover:text-white;
+    @apply border text-text-muted;
+    background-color: var(--glass-bg);
+    border-color: var(--glass-border);
+    @apply hover:bg-white/10 hover:border-white/20 hover:text-text-main;
     @apply transition-all duration-200;
   }
 
   .btn-ghost {
-    @apply px-3 py-1.5 rounded-lg text-sm text-slate-400;
-    @apply hover:bg-white/5 hover:text-slate-200;
+    @apply px-3 py-1.5 rounded-lg text-sm text-text-muted;
+    @apply hover:bg-white/5 hover:text-text-main;
     @apply transition-all duration-200;
   }
 
   .btn-icon {
-    @apply p-2 rounded-lg text-slate-500;
-    @apply hover:bg-white/5 hover:text-slate-300;
+    @apply p-2 rounded-lg text-text-muted;
+    @apply hover:bg-white/5 hover:text-text-main;
     @apply transition-all duration-200;
   }
 
   .btn-danger {
-    @apply p-2 rounded-lg text-slate-500;
+    @apply p-2 rounded-lg text-text-muted;
     @apply transition-all duration-200;
     @apply hover:bg-danger/10 hover:text-danger;
   }
 
   .input-field {
-    @apply w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3;
-    @apply text-white placeholder:text-slate-500;
+    @apply w-full border rounded-xl px-4 py-3;
+    background-color: var(--bg-elevated);
+    border-color: var(--border-main);
+    @apply text-text-main placeholder:text-text-muted;
     @apply focus:outline-none focus:border-brand-primary/50 focus:ring-2 focus:ring-brand-primary/20;
     @apply transition-all duration-200;
   }

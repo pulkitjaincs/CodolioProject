@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware';
 
 export const useQuestionStore = create(
     persist(
-        (set) => ({
+        (set, get) => ({
             topics: [],
             loading: false,
 
@@ -231,82 +231,103 @@ export const useQuestionStore = create(
             },
 
             toggleSolved: async (topicId, subTopicId, questionId) => {
+                const previousTopics = get().topics;
+
+                // Optimistic update
+                set((state) => ({
+                    topics: state.topics.map(topic => {
+                        if (topic.id !== topicId) return topic;
+                        const updateQ = q => q._id === questionId ? { ...q, isSolved: !q.isSolved } : q;
+
+                        if (!subTopicId) {
+                            return { ...topic, questions: topic.questions.map(updateQ) };
+                        }
+
+                        return {
+                            ...topic,
+                            subTopics: topic.subTopics.map(st =>
+                                st.id === subTopicId
+                                    ? { ...st, questions: st.questions.map(updateQ) }
+                                    : st
+                            )
+                        };
+                    })
+                }));
+
                 try {
                     const response = await fetch(`/api/questions/${questionId}/toggle`, {
                         method: 'PATCH'
                     });
                     const result = await response.json();
 
-                    if (result.success) {
-                        set((state) => {
-                            const newTopics = state.topics.map(topic => {
-                                if (topic.id !== topicId) return topic;
-
-                                if (!subTopicId) {
-                                    return {
-                                        ...topic,
-                                        questions: topic.questions.map(q =>
-                                            q._id === questionId ? { ...q, isSolved: result.data.isSolved } : q
-                                        )
-                                    };
-                                }
-
-                                return {
-                                    ...topic,
-                                    subTopics: topic.subTopics.map(st =>
-                                        st.id === subTopicId
-                                            ? { ...st, questions: st.questions.map(q => q._id === questionId ? { ...q, isSolved: result.data.isSolved } : q) }
-                                            : st
-                                    )
-                                };
-                            });
-                            return { topics: newTopics };
-                        });
-                    }
+                    if (!result.success) throw new Error('Failed to toggle solved');
                 } catch (error) {
-                    console.error('Failed to toggle solved:', error);
+                    console.error('Failed to toggle solved, rolling back:', error);
+                    set({ topics: previousTopics });
                 }
             },
 
             toggleStarred: async (topicId, subTopicId, questionId) => {
+                const previousTopics = get().topics;
+
+                // Optimistic update
+                set((state) => ({
+                    topics: state.topics.map(topic => {
+                        if (topic.id !== topicId) return topic;
+                        const updateQ = q => q._id === questionId ? { ...q, isStarred: !q.isStarred } : q;
+
+                        if (!subTopicId) {
+                            return { ...topic, questions: topic.questions.map(updateQ) };
+                        }
+
+                        return {
+                            ...topic,
+                            subTopics: topic.subTopics.map(st =>
+                                st.id === subTopicId
+                                    ? { ...st, questions: st.questions.map(updateQ) }
+                                    : st
+                            )
+                        };
+                    })
+                }));
+
                 try {
                     const response = await fetch(`/api/questions/${questionId}/star`, {
                         method: 'PATCH'
                     });
                     const result = await response.json();
 
-                    if (result.success) {
-                        set((state) => {
-                            const newTopics = state.topics.map(topic => {
-                                if (topic.id !== topicId) return topic;
-
-                                if (!subTopicId) {
-                                    return {
-                                        ...topic,
-                                        questions: topic.questions.map(q =>
-                                            q._id === questionId ? { ...q, isStarred: result.data.isStarred } : q
-                                        )
-                                    };
-                                }
-
-                                return {
-                                    ...topic,
-                                    subTopics: topic.subTopics.map(st =>
-                                        st.id === subTopicId
-                                            ? { ...st, questions: st.questions.map(q => q._id === questionId ? { ...q, isStarred: result.data.isStarred } : q) }
-                                            : st
-                                    )
-                                };
-                            });
-                            return { topics: newTopics };
-                        });
-                    }
+                    if (!result.success) throw new Error('Failed to toggle star');
                 } catch (error) {
-                    console.error('Failed to toggle star:', error);
+                    console.error('Failed to toggle star, rolling back:', error);
+                    set({ topics: previousTopics });
                 }
             },
 
             updateNotes: async (topicId, subTopicId, questionId, notes) => {
+                const previousTopics = get().topics;
+
+                // Optimistic update
+                set((state) => ({
+                    topics: state.topics.map(topic => {
+                        if (topic.id !== topicId) return topic;
+                        const updateQ = q => q._id === questionId ? { ...q, notes } : q;
+
+                        if (!subTopicId) {
+                            return { ...topic, questions: topic.questions.map(updateQ) };
+                        }
+
+                        return {
+                            ...topic,
+                            subTopics: topic.subTopics.map(st =>
+                                st.id === subTopicId
+                                    ? { ...st, questions: st.questions.map(updateQ) }
+                                    : st
+                            )
+                        };
+                    })
+                }));
+
                 try {
                     const response = await fetch(`/api/questions/${questionId}/notes`, {
                         method: 'PATCH',
@@ -315,34 +336,10 @@ export const useQuestionStore = create(
                     });
                     const result = await response.json();
 
-                    if (result.success) {
-                        set((state) => {
-                            const newTopics = state.topics.map(topic => {
-                                if (topic.id !== topicId) return topic;
-
-                                if (!subTopicId) {
-                                    return {
-                                        ...topic,
-                                        questions: topic.questions.map(q =>
-                                            q._id === questionId ? { ...q, notes: result.data.notes } : q
-                                        )
-                                    };
-                                }
-
-                                return {
-                                    ...topic,
-                                    subTopics: topic.subTopics.map(st =>
-                                        st.id === subTopicId
-                                            ? { ...st, questions: st.questions.map(q => q._id === questionId ? { ...q, notes: result.data.notes } : q) }
-                                            : st
-                                    )
-                                };
-                            });
-                            return { topics: newTopics };
-                        });
-                    }
+                    if (!result.success) throw new Error('Failed to update notes');
                 } catch (error) {
-                    console.error('Failed to update notes:', error);
+                    console.error('Failed to update notes, rolling back:', error);
+                    set({ topics: previousTopics });
                 }
             },
 

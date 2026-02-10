@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import {
   DndContext,
   closestCenter,
@@ -15,7 +15,8 @@ import {
 import { useQuestionStore } from './store/useQuestionStore';
 import { TopicCard } from './components/questions/TopicCard';
 import { Modal } from './components/ui/Modal';
-import { Sparkles, RotateCcw, Plus, BookOpen, CheckCircle2, Target, Zap } from 'lucide-react';
+import { ThemeToggle } from './components/ui/ThemeToggle';
+import { Sparkles, RotateCcw, Plus, BookOpen, CheckCircle2, Target, Zap, RefreshCcw } from 'lucide-react';
 
 function App() {
   const { topics, setTopics, reorderTopics, resetProgress, fullReset } = useQuestionStore();
@@ -30,16 +31,19 @@ function App() {
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
-  const stats = useMemo(() => {
-    let total = 0, solved = 0;
-    topics.forEach(topic => {
-      topic.questions?.forEach(q => { total++; if (q.isSolved) solved++; });
-      topic.subTopics?.forEach(st => {
-        st.questions?.forEach(q => { total++; if (q.isSolved) solved++; });
-      });
+  // Calculate stats directly for maximum reliability
+  let totalNum = 0, solvedNum = 0;
+  topics.forEach(topic => {
+    topic.questions?.forEach(q => { totalNum++; if (q.isSolved) solvedNum++; });
+    topic.subTopics?.forEach(st => {
+      st.questions?.forEach(q => { totalNum++; if (q.isSolved) solvedNum++; });
     });
-    return { total, solved, progress: total > 0 ? Math.round((solved / total) * 100) : 0 };
-  }, [topics]);
+  });
+  const stats = {
+    total: totalNum,
+    solved: solvedNum,
+    progress: totalNum > 0 ? Math.round((solvedNum / totalNum) * 100) : 0
+  };
 
   const handleAddTopic = (e) => {
     e.preventDefault();
@@ -50,21 +54,21 @@ function App() {
     setIsAddModalOpen(false);
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (topics.length > 0) return;
-      try {
-        const response = await fetch('/api/topics');
-        const result = await response.json();
-        if (result.success && result.data) {
-          setTopics(result.data);
-        }
-      } catch (error) {
-        console.error("Failed to fetch from API:", error);
+  const fetchData = async () => {
+    try {
+      const response = await fetch('/api/topics');
+      const result = await response.json();
+      if (result.success && result.data) {
+        setTopics(result.data);
       }
-    };
+    } catch (error) {
+      console.error("Failed to fetch from API:", error);
+    }
+  };
+
+  useEffect(() => {
     fetchData();
-  }, [setTopics, topics.length]);
+  }, [setTopics]);
 
   const handleDragEnd = (event) => {
     const { active, over } = event;
@@ -91,11 +95,21 @@ function App() {
                   CodolioQuestions
                 </h1>
               </div>
-              <p className="text-slate-400 text-sm md:text-base">
+              <p className="text-text-muted text-sm md:text-base">
                 Track your DSA journey with the Striver SDE Sheet
               </p>
             </div>
-            <div className="flex gap-3">
+            <div className="flex items-center gap-3">
+              <ThemeToggle />
+              <div className="h-6 w-px bg-border-dark hidden sm:block" />
+              <button
+                onClick={fetchData}
+                className="p-2 rounded-xl glass-subtle text-text-muted hover:text-brand-primary transition-all hover:scale-110 active:scale-95"
+                title="Sync from Database"
+              >
+                <RefreshCcw className="w-5 h-5" />
+              </button>
+              <div className="h-6 w-px bg-border-dark hidden sm:block" />
               <button
                 onClick={() => setIsResetModalOpen(true)}
                 className="btn-secondary flex items-center gap-2"
@@ -116,8 +130,8 @@ function App() {
                 <BookOpen className="w-5 h-5 text-brand-primary" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-white">{topics.length}</p>
-                <p className="text-xs text-slate-500 uppercase tracking-wider">Topics</p>
+                <p className="text-2xl font-bold text-text-main">{topics.length}</p>
+                <p className="text-xs text-text-muted uppercase tracking-wider">Topics</p>
               </div>
             </div>
             <div className="glass-subtle p-4 flex items-center gap-4">
@@ -125,8 +139,8 @@ function App() {
                 <Target className="w-5 h-5 text-brand-accent" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-white">{stats.total}</p>
-                <p className="text-xs text-slate-500 uppercase tracking-wider">Questions</p>
+                <p className="text-2xl font-bold text-text-main">{stats.total}</p>
+                <p className="text-xs text-text-muted uppercase tracking-wider">Questions</p>
               </div>
             </div>
             <div className="glass-subtle p-4 flex items-center gap-4">
@@ -134,8 +148,8 @@ function App() {
                 <CheckCircle2 className="w-5 h-5 text-success" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-white">{stats.solved}</p>
-                <p className="text-xs text-slate-500 uppercase tracking-wider">Solved</p>
+                <p className="text-2xl font-bold text-text-main">{stats.solved}</p>
+                <p className="text-xs text-text-muted uppercase tracking-wider">Solved</p>
               </div>
             </div>
             <div className="glass-subtle p-4 flex items-center gap-4">
@@ -143,8 +157,8 @@ function App() {
                 <Zap className="w-5 h-5 text-warning" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-white">{stats.progress}%</p>
-                <p className="text-xs text-slate-500 uppercase tracking-wider">Progress</p>
+                <p className="text-2xl font-bold text-text-main">{stats.progress}%</p>
+                <p className="text-xs text-text-muted uppercase tracking-wider">Progress</p>
               </div>
             </div>
           </div>
@@ -165,8 +179,8 @@ function App() {
             <div className="p-4 rounded-2xl bg-brand-primary/10 w-fit mx-auto mb-4">
               <BookOpen className="w-10 h-10 text-brand-primary" />
             </div>
-            <h3 className="text-xl font-semibold text-white mb-2">No Topics Yet</h3>
-            <p className="text-slate-400 mb-6 max-w-md mx-auto">
+            <h3 className="text-xl font-semibold text-text-main mb-2">No Topics Yet</h3>
+            <p className="text-text-muted mb-6 max-w-md mx-auto">
               Start building your question sheet by adding your first topic.
             </p>
             <button onClick={() => setIsAddModalOpen(true)} className="btn-primary">
@@ -179,7 +193,7 @@ function App() {
         <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} title="Add New Topic">
           <form onSubmit={handleAddTopic} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-400 mb-2">Topic Title *</label>
+              <label className="block text-sm font-medium text-text-muted mb-2">Topic Title *</label>
               <input
                 autoFocus
                 type="text"
@@ -191,7 +205,7 @@ function App() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-400 mb-2">Description</label>
+              <label className="block text-sm font-medium text-text-muted mb-2">Description</label>
               <textarea
                 placeholder="Briefly describe what this topic covers..."
                 className="input-field min-h-[100px] resize-none"
@@ -208,8 +222,8 @@ function App() {
         <Modal isOpen={isResetModalOpen} onClose={() => setIsResetModalOpen(false)} title="Reset Sheet">
           <div className="space-y-6">
             <div className="p-4 rounded-xl bg-brand-primary/10 border border-brand-primary/20">
-              <h4 className="font-semibold text-white mb-1">Option 1: Unmark All Progress</h4>
-              <p className="text-sm text-slate-400 mb-4">
+              <h4 className="font-semibold text-text-main mb-1">Option 1: Unmark All Progress</h4>
+              <p className="text-sm text-text-muted mb-4">
                 Keep all your topics and questions, but uncheck all "Solved" boxes.
               </p>
               <button
@@ -223,14 +237,15 @@ function App() {
             </div>
 
             <div className="p-4 rounded-xl bg-danger/10 border border-danger/20">
-              <h4 className="font-semibold text-white mb-1">Option 2: Restore Original Sheet</h4>
-              <p className="text-sm text-slate-400 mb-4">
+              <h4 className="font-semibold text-text-main mb-1">Option 2: Restore Original Sheet</h4>
+              <p className="text-sm text-text-muted mb-4">
                 <span className="text-danger font-medium text-xs uppercase tracking-wider block mb-1">⚠️ Warning</span>
                 Delete everything and restore the original Striver A2Z DSA Sheet from sheet.json.
               </p>
               <button
                 onClick={async () => {
                   if (window.confirm("This will delete all custom topics and questions. Are you sure?")) {
+                    window.alert("Please wait this might take a while!...");
                     if (await fullReset()) setIsResetModalOpen(false);
                   }
                 }}

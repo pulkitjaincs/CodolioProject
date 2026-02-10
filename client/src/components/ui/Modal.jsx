@@ -12,7 +12,7 @@ export const Modal = ({ isOpen, onClose, title, children }) => {
       />
       <div className="relative glass p-6 w-full max-w-md mx-4 animate-scale-in">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-white">{title}</h2>
+          <h2 className="text-xl font-semibold text-text-main">{title}</h2>
           <button
             onClick={onClose}
             className="btn-icon"

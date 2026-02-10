@@ -10,7 +10,8 @@ export const getAllTopics = async (req, res) => {
                 path: 'subTopics',
                 populate: { path: 'questions' }
             })
-            .populate('questions');
+            .populate('questions')
+            .lean();
 
         const formattedTopics = topics.map(t => ({
             id: t._id.toString(),

@@ -70,7 +70,7 @@ export const AddQuestionModal = ({ isOpen, onClose, onSubmit, initialData = null
         <Modal isOpen={isOpen} onClose={onClose} title={mode === 'edit' ? "Edit Question" : "Add New Question"}>
             <form onSubmit={handleSubmit} className="space-y-4 max-h-[70vh] overflow-y-auto pr-2 custom-scrollbar">
                 <div>
-                    <label className="block text-sm font-medium text-slate-400 mb-2">
+                    <label className="block text-sm font-medium text-text-muted mb-2">
                         Question Title *
                     </label>
                     <input
@@ -87,11 +87,11 @@ export const AddQuestionModal = ({ isOpen, onClose, onSubmit, initialData = null
 
                 <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <label className="block text-sm font-medium text-slate-400 mb-2">
+                        <label className="block text-sm font-medium text-text-muted mb-2">
                             Platform
                         </label>
                         <div className="relative">
-                            <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                            <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
                             <select
                                 name="platform"
                                 className="input-field pl-10 appearance-none"
@@ -110,7 +110,7 @@ export const AddQuestionModal = ({ isOpen, onClose, onSubmit, initialData = null
                         </div>
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-slate-400 mb-2">
+                        <label className="block text-sm font-medium text-text-muted mb-2">
                             Difficulty
                         </label>
                         <select
@@ -128,11 +128,11 @@ export const AddQuestionModal = ({ isOpen, onClose, onSubmit, initialData = null
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-slate-400 mb-2">
+                    <label className="block text-sm font-medium text-text-muted mb-2">
                         Problem URL
                     </label>
                     <div className="relative">
-                        <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                        <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
                         <input
                             type="url"
                             name="problemUrl"
@@ -145,11 +145,11 @@ export const AddQuestionModal = ({ isOpen, onClose, onSubmit, initialData = null
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-slate-400 mb-2">
+                    <label className="block text-sm font-medium text-text-muted mb-2">
                         Resource (Video/Tutorial)
                     </label>
                     <div className="relative">
-                        <Youtube className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                        <Youtube className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
                         <input
                             type="url"
                             name="resource"
@@ -162,11 +162,11 @@ export const AddQuestionModal = ({ isOpen, onClose, onSubmit, initialData = null
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-slate-400 mb-2">
+                    <label className="block text-sm font-medium text-text-muted mb-2">
                         Company Tags (comma separated)
                     </label>
                     <div className="relative">
-                        <Building2 className="absolute left-3 top-3 w-4 h-4 text-slate-500" />
+                        <Building2 className="absolute left-3 top-3 w-4 h-4 text-text-muted" />
                         <textarea
                             name="companyTags"
                             placeholder="Amazon, Google, Microsoft..."
@@ -178,7 +178,7 @@ export const AddQuestionModal = ({ isOpen, onClose, onSubmit, initialData = null
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-slate-400 mb-2">
+                    <label className="block text-sm font-medium text-text-muted mb-2">
                         Private Notes
                     </label>
                     <textarea
@@ -192,12 +192,12 @@ export const AddQuestionModal = ({ isOpen, onClose, onSubmit, initialData = null
 
                 <div className="flex items-center gap-3 p-4 rounded-xl bg-white/[0.03] border border-white/10 hover:border-brand-primary/30 transition-all cursor-pointer"
                     onClick={() => setFormData(p => ({ ...p, isStarred: !p.isStarred }))}>
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all ${formData.isStarred ? 'bg-yellow-400/20 text-yellow-400' : 'bg-white/5 text-slate-500'}`}>
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all ${formData.isStarred ? 'bg-yellow-400/20 text-yellow-400' : 'bg-white/5 text-text-muted'}`}>
                         <Star className={`w-5 h-5 ${formData.isStarred ? 'fill-current' : ''}`} />
                     </div>
                     <div className="flex-1">
-                        <h4 className="text-sm font-semibold text-white">Star this question</h4>
-                        <p className="text-xs text-slate-500">Highlight this problem for quick review later.</p>
+                        <h4 className="text-sm font-semibold text-text-main">Star this question</h4>
+                        <p className="text-xs text-text-muted">Highlight this problem for quick review later.</p>
                     </div>
                     <div className={`w-5 h-5 rounded border-2 transition-all flex items-center justify-center ${formData.isStarred ? 'bg-yellow-400 border-yellow-400' : 'border-slate-700'}`}>
                         {formData.isStarred && <Check className="w-3.5 h-3.5 text-black font-bold" />}
