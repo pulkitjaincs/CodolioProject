@@ -1,8 +1,7 @@
 import mongoose from 'mongoose';
 import 'dotenv/config';
 
-const MONGODB_URI = process.env.ATLASDB_URL;
-
+const MONGODB_URI = process.env.MONGODB_URL || process.env.ATLASDB_URL;
 export const connectDB = async () => {
     try {
         console.log('🔌 Connecting to MongoDB Atlas...');

@@ -8,6 +8,9 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const CORS_ORIGIN = process.env.CORS_ORIGIN || 'http://localhost:5173';
 
+app.get('/', (req, res) => res.status(200).send('Server is running'));
+
+
 app.use(cors({ origin: CORS_ORIGIN }));
 app.use(express.json());
 
