@@ -2,7 +2,7 @@
     "rewrites": [
         {
             "source": "/api/(.*)",
-            "destination": "https://YOUR_RENDER_SERVICE_URL/api/$1"
+            "destination": "https://codolioproject.onrender.com/api/$1"
         },
         {
             "source": "/((?!api/).*)",
